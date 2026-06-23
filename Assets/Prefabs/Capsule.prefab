@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2328418325235259355}
   - component: {fileID: -233835597371482471}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -127,6 +127,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fb0b43ee4dc0dc419922db21b3a4554, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  moveSpeed: 5
-  offset: {x: 0, y: 1.1, z: 0}
-  currentPath: {fileID: 0}
+  data: {fileID: 11400000, guid: 5582604701a37264e96c8892e1581c43, type: 2}
