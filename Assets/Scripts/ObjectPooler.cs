@@ -1,17 +1,22 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ObjectPooler : MonoBehaviour
 {
+    // Enemy prefab that this pool manages
     [SerializeField] GameObject prefab;
+
+    // Initial number of enemies to create
     [SerializeField] int poolSize;
+
+    // Stores all created enemies
     [SerializeField] List<GameObject> pool;
 
     private void Start()
     {
-        //Filling up pool list with poolsize amount of prefab  
+        // Create the pool at game start
         pool = new List<GameObject>();
+
         for (int i = 0; i < poolSize; i++)
         {
             CreateNewObjects();
@@ -20,16 +25,21 @@ public class ObjectPooler : MonoBehaviour
 
     private GameObject CreateNewObjects()
     {
-        //Spawning prefab, disabling those prefab, adding those prefab inside pool list and returning that spawned prefab
+        // Create a new enemy
         GameObject newPrefab = Instantiate(prefab, transform);
+
+        // Keep it disabled until needed
         newPrefab.SetActive(false);
+
+        // Store it in the pool
         pool.Add(newPrefab);
+
         return newPrefab;
     }
 
     public GameObject GetPooledObjects()
     {
-        //Looking for gameobject which are disable inside pool list and returning that gameobject and if there isn't any, spawn a new prefab
+        // Look for an inactive object that can be reused
         foreach (GameObject obj in pool)
         {
             if (!obj.activeSelf)
@@ -37,6 +47,8 @@ public class ObjectPooler : MonoBehaviour
                 return obj;
             }
         }
+
+        // If every object is busy, create a new one
         return CreateNewObjects();
     }
 }

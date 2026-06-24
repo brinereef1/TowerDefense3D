@@ -3,11 +3,12 @@ using UnityEngine;
 
 public class Path : MonoBehaviour
 {
+    // Ordered list of waypoints enemies will follow
     public GameObject[] WayPoints;
 
     public Vector3 GetWayPoints(int index)
     {
-        //Returning waypoints position accoding to the index 
+        // Return the position of the requested waypoint
         return WayPoints[index].transform.position;
     }
 
@@ -17,17 +18,24 @@ public class Path : MonoBehaviour
         {
             for (int i = 0; i < WayPoints.Length; i++)
             {
-                //Setting gui style to see each waypoint name in the scene view
+                // Display waypoint names in Scene View
                 GUIStyle style = new GUIStyle();
                 style.normal.textColor = Color.blue;
                 style.alignment = TextAnchor.MiddleLeft;
-                Handles.Label(WayPoints[i].transform.position + Vector3.up * 0.7f, WayPoints[i].name, style);
 
+                Handles.Label(
+                    WayPoints[i].transform.position + Vector3.up * 0.7f,
+                    WayPoints[i].name,
+                    style);
+
+                // Draw a line connecting this waypoint to the next
                 if (i < WayPoints.Length - 1)
                 {
-                    //Drawing gizmos line from waypoint 0 to waypoint n position
                     Gizmos.color = Color.black;
-                    Gizmos.DrawLine(WayPoints[i].transform.position, WayPoints[i + 1].transform.position);
+
+                    Gizmos.DrawLine(
+                        WayPoints[i].transform.position,
+                        WayPoints[i + 1].transform.position);
                 }
             }
         }
