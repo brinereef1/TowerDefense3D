@@ -3,68 +3,71 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    // Current waypoint the enemy is moving toward
+    // Current waypoint position this enemy is moving toward
     private Vector3 _targetPosition;
 
-    // Which waypoint we are currently trying to reach
+    // Index of the current waypoint in the path
     private int _currentIndexPath = 0;
 
-    // Distance between enemy and current waypoint
+    // Distance from the current waypoint
     private float _reachedDestiny;
 
-    // Reference to the Path script
+    // Reference to the path the enemy follows
     private Path _currentPath;
 
-    // Contains this enemy's stats
+    // Stats for this enemy type
     [SerializeField] EnemyData data;
 
+    // Event fired when an enemy reaches the end of the path
     public static event Action<EnemyData> EnemiesRemovedData;
 
     private void Awake()
     {
-        // Find the path in the scene
+        // Find the path once and cache the reference
         _currentPath = GameObject.Find("Path").GetComponent<Path>();
     }
 
     private void OnEnable()
     {
         // Whenever this enemy is reused from the pool,
-        // start from the first waypoint
+        // start again from the first waypoint
         _targetPosition = _currentPath.GetWayPoints(_currentIndexPath);
     }
 
     private void Update()
     {
-        // Move toward the current waypoint
+        // Move toward the current target waypoint
         transform.position = Vector3.MoveTowards(
             transform.position,
             _targetPosition + data.Offset,
             data.Speed * Time.deltaTime);
 
-        // Check how far away we are from the waypoint
-        _reachedDestiny = (_targetPosition - transform.position).magnitude;
+        // Calculate distance to the target waypoint
+        _reachedDestiny =
+            (_targetPosition - transform.position).magnitude;
 
-        // If we've reached the waypoint...
+        // If close enough, consider the waypoint reached
         if (_reachedDestiny <= 1.1f)
         {
-            // ...and there are more waypoints ahead
+            // Continue to the next waypoint if one exists
             if (_currentIndexPath < _currentPath.WayPoints.Length - 1)
             {
-                // Move to the next waypoint
                 _currentIndexPath++;
-                _targetPosition = _currentPath.GetWayPoints(_currentIndexPath);
+
+                _targetPosition =
+                    _currentPath.GetWayPoints(_currentIndexPath);
             }
             else
             {
-                // Reached the end of the path
+                // Enemy has reached the end of the path
 
-                // Return enemy to the pool
+                // Return enemy to the object pool
                 gameObject.SetActive(false);
 
-                // Reset path index so next spawn starts from waypoint 0
+                // Reset path progress for future reuse
                 _currentIndexPath = 0;
 
-                // Sending the enemies data which has reached the last waypoint
+                // Notify systems that this enemy has completed the path
                 EnemiesRemovedData?.Invoke(data);
             }
         }

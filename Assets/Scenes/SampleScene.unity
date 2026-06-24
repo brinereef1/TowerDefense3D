@@ -266,9 +266,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fe32f1e74bfba1448be64f9d84e513e9, type: 2}
   - {fileID: 11400000, guid: 62ba90d0f2a68a442ae93c223c48f7c4, type: 2}
   - {fileID: 11400000, guid: 0176a53f9ec4adf4f95e61a73e867b9a, type: 2}
-  spawnInterval: 1
+  _currentWaveIndex: 0
   spawnTime: 0
-  pooledObjects: {fileID: 1768195514}
+  spawnCounter: 0
+  enemiesRemoved: 0
+  inBetween: 0
+  wavePauseTimer: 0
   spherePool: {fileID: 728340348}
   capsulePool: {fileID: 286696250}
   cylinderPool: {fileID: 1768195514}
