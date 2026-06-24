@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,22 +8,27 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] WaveData[] waves;
 
     // Tracks which wave is currently active
-    [SerializeField] private int _currentWaveIndex = 0;
+    private int _currentWaveIndex = 0;
 
     // Timer used to control spawn intervals
-    [SerializeField] float spawnTime;
+    private float spawnTime;
 
     // Number of enemies spawned in the current wave
-    [SerializeField] int spawnCounter;
+    private int spawnCounter;
 
     // Number of enemies that have completed the path
-    [SerializeField] int enemiesRemoved;
+    private int enemiesRemoved;
 
     // True while waiting between waves
-    [SerializeField] bool inBetween;
+    private bool inBetween;
 
     // Timer for the wave break
-    [SerializeField] float wavePauseTimer;
+    private float wavePauseTimer;
+
+    // Pause time between waves
+    [SerializeField] float timeBetweenWaves;
+    
+    private int waveCounter = 1;
 
     // Separate object pools for each enemy type
     [SerializeField] ObjectPooler spherePool;
@@ -35,8 +41,12 @@ public class SpawnManager : MonoBehaviour
     // Shortcut for accessing the current wave data
     private WaveData currentWave => waves[_currentWaveIndex];
 
+    public static event Action<int> onWaveChanged;
+
     private void Awake()
     {
+        wavePauseTimer = timeBetweenWaves;
+
         // Create a lookup table so we can easily find
         // the correct pool from an EnemyType
         _pooledObjects = new Dictionary<EnemyType, ObjectPooler>()
@@ -45,6 +55,11 @@ public class SpawnManager : MonoBehaviour
             { EnemyType.capsule, capsulePool },
             { EnemyType.cylinder, cylinderPool }
         };
+    }
+
+    private void Start()
+    {
+        onWaveChanged?.Invoke(waveCounter);
     }
 
     private void OnEnable()
@@ -64,16 +79,19 @@ public class SpawnManager : MonoBehaviour
         // Handle the delay between waves
         if (inBetween)
         {
-            wavePauseTimer += Time.deltaTime;
+            wavePauseTimer -= Time.deltaTime;
 
             // Move to the next wave after a short break
-            if (wavePauseTimer >= 2)
+            if (wavePauseTimer <= 0f)
             {
-                wavePauseTimer = 0;
+                wavePauseTimer = timeBetweenWaves;
 
                 // Move to the next wave and loop back to the first
                 // wave when reaching the end of the array
                 _currentWaveIndex = (_currentWaveIndex + 1) % waves.Length;
+
+                waveCounter++;
+                onWaveChanged?.Invoke(waveCounter);
 
                 // Reset counters for the new wave
                 spawnCounter = 0;
@@ -89,8 +107,7 @@ public class SpawnManager : MonoBehaviour
             spawnTime += Time.deltaTime;
 
             // Spawn enemies until this wave reaches its limit
-            if (spawnTime > currentWave.SpawnTime &&
-                spawnCounter < currentWave.NumberOfEnemies)
+            if (spawnTime > currentWave.SpawnTime && spawnCounter < currentWave.NumberOfEnemies)
             {
                 spawnTime = 0;
 
@@ -102,8 +119,7 @@ public class SpawnManager : MonoBehaviour
             // Once all enemies have been spawned AND
             // all of them have finished the path,
             // start the wave transition period
-            else if (spawnCounter >= currentWave.NumberOfEnemies &&
-                     enemiesRemoved >= currentWave.NumberOfEnemies)
+            else if (spawnCounter >= currentWave.NumberOfEnemies && enemiesRemoved >= currentWave.NumberOfEnemies)
             {
                 inBetween = true;
             }

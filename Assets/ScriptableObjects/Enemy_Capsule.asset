@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   Lives: 10
   Damage: 5
-  Speed: 5
+  Speed: 20
   Offset: {x: 0, y: 1.1, z: 0}
