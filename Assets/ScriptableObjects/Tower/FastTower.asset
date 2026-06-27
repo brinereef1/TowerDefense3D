@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c6f550d657bf3344927656402e103ff, type: 3}
   m_Name: FastTower
   m_EditorClassIdentifier: Assembly-CSharp::TowerData
-  Range: 2
+  Range: 4
   ShootInterval: 0.5
-  ProjectileSpeed: 10
-  ProjectileDuration: 2
+  ProjectileSpeed: 30
+  ProjectileDuration: 1
   Damage: 1

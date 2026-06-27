@@ -761,7 +761,6 @@ GameObject:
   - component: {fileID: 709854602}
   - component: {fileID: 709854605}
   - component: {fileID: 709854606}
-  - component: {fileID: 709854607}
   m_Layer: 0
   m_Name: FastTower
   m_TagString: Untagged
@@ -855,7 +854,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tower
   data: {fileID: 11400000, guid: 422589d1bf91cc84683a03c10adaae52, type: 2}
   enemiesRange: []
-  projectilePooler: {fileID: 0}
 --- !u!135 &709854606
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -877,21 +875,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.00001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &709854607
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 709854600}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e87171edc1932564f989b0ad97f18c59, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectPooler
-  prefab: {fileID: 7296238733487984016, guid: dad17fa5dbe7c2c4d94cd8eb5277fbd9, type: 3}
-  poolSize: 5
-  pool: []
 --- !u!1 &728340347
 GameObject:
   m_ObjectHideFlags: 0
