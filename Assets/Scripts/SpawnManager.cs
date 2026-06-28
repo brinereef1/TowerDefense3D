@@ -4,51 +4,52 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    // List of all waves that will be played in this level
+    // All waves available in this level.
     [SerializeField] WaveData[] waves;
 
-    // Tracks which wave is currently active
+    // Index of the currently active wave.
     private int _currentWaveIndex = 0;
 
-    // Timer used to control spawn intervals
+    // Timer used to control enemy spawn intervals.
     private float spawnTime;
 
-    // Number of enemies spawned in the current wave
+    // Number of enemies spawned in the current wave.
     private int spawnCounter;
 
-    // Number of enemies that have completed the path
+    // Number of enemies removed (killed or reached the goal) in the current wave.
     private int enemiesRemoved;
 
-    // True while waiting between waves
+    // Indicates whether the game is waiting before starting the next wave.
     private bool inBetween;
 
-    // Timer for the wave break
+    // Countdown timer between waves.
     private float wavePauseTimer;
 
-    // Pause time between waves
+    // Delay before the next wave starts.
     [SerializeField] float timeBetweenWaves;
-    
+
+    // Current wave number shown to the player.
     private int waveCounter = 1;
 
-    // Separate object pools for each enemy type
+    // Object pools for each enemy type.
     [SerializeField] ObjectPooler spherePool;
     [SerializeField] ObjectPooler capsulePool;
     [SerializeField] ObjectPooler cylinderPool;
 
-    // Maps an enemy type to its corresponding object pool
+    // Maps each enemy type to its corresponding object pool.
     private Dictionary<EnemyType, ObjectPooler> _pooledObjects;
 
-    // Shortcut for accessing the current wave data
+    // Shortcut to access the current wave.
     private WaveData currentWave => waves[_currentWaveIndex];
 
+    // Notifies other systems whenever the wave changes.
     public static event Action<int> onWaveChanged;
 
     private void Awake()
     {
         wavePauseTimer = timeBetweenWaves;
 
-        // Create a lookup table so we can easily find
-        // the correct pool from an EnemyType
+        // Create a lookup table so enemies can be spawned by type.
         _pooledObjects = new Dictionary<EnemyType, ObjectPooler>()
         {
             { EnemyType.sphere, spherePool },
@@ -59,55 +60,57 @@ public class SpawnManager : MonoBehaviour
 
     private void Start()
     {
+        // Display the first wave when the game starts.
         onWaveChanged?.Invoke(waveCounter);
     }
 
     private void OnEnable()
     {
-        // Listen for enemies reaching the end of the path
-        Enemy.EnemiesRemovedData += HandleEnemiesRemoved;
+        // Listen for enemies leaving the game (death or reaching the goal).
+        Enemy.EnemyRemoved += HandleEnemyRemoved;
     }
 
     private void OnDisable()
     {
-        // Always unsubscribe when disabled to avoid duplicate subscriptions
-        Enemy.EnemiesRemovedData -= HandleEnemiesRemoved;
+        // Stop listening when this object is disabled.
+        Enemy.EnemyRemoved -= HandleEnemyRemoved;
     }
 
     private void Update()
     {
-        // Handle the delay between waves
         if (inBetween)
         {
+            // Count down the delay before the next wave.
             wavePauseTimer -= Time.deltaTime;
 
-            // Move to the next wave after a short break
             if (wavePauseTimer <= 0f)
             {
+                // Reset the wave timer.
                 wavePauseTimer = timeBetweenWaves;
 
-                // Move to the next wave and loop back to the first
-                // wave when reaching the end of the array
+                // Move to the next wave and loop if we've reached the last one.
                 _currentWaveIndex = (_currentWaveIndex + 1) % waves.Length;
 
+                // Increase and broadcast the current wave number.
                 waveCounter++;
                 onWaveChanged?.Invoke(waveCounter);
 
-                // Reset counters for the new wave
+                // Prepare counters for the new wave.
                 spawnCounter = 0;
                 enemiesRemoved = 0;
 
-                // Allow spawning again
+                // Resume spawning.
                 inBetween = false;
             }
         }
         else
         {
-            // Continuously count time for spawning enemies
+            // Count elapsed time between enemy spawns.
             spawnTime += Time.deltaTime;
 
-            // Spawn enemies until this wave reaches its limit
-            if (spawnTime > currentWave.SpawnTime && spawnCounter < currentWave.NumberOfEnemies)
+            // Spawn enemies until the wave limit is reached.
+            if (spawnTime > currentWave.SpawnTime &&
+                spawnCounter < currentWave.NumberOfEnemies)
             {
                 spawnTime = 0;
 
@@ -116,10 +119,9 @@ public class SpawnManager : MonoBehaviour
                 spawnCounter++;
             }
 
-            // Once all enemies have been spawned AND
-            // all of them have finished the path,
-            // start the wave transition period
-            else if (spawnCounter >= currentWave.NumberOfEnemies && enemiesRemoved >= currentWave.NumberOfEnemies)
+            // Wait for the next wave only after every spawned enemy has been removed.
+            else if (spawnCounter >= currentWave.NumberOfEnemies &&
+                     enemiesRemoved >= currentWave.NumberOfEnemies)
             {
                 inBetween = true;
             }
@@ -128,23 +130,23 @@ public class SpawnManager : MonoBehaviour
 
     void SpawnObjects()
     {
-        // Find the correct pool based on the enemy type
+        // Get the correct object pool for the current enemy type.
         if (_pooledObjects.TryGetValue(currentWave.Type, out var pool))
         {
-            // Get an available enemy from the pool
+            // Reuse an inactive enemy from the pool.
             GameObject spawnedObject = pool.GetPooledObjects();
 
-            // Spawn enemy at this object's position
+            // Spawn the enemy at the spawn point.
             spawnedObject.transform.position = transform.position;
 
-            // Activate enemy and start its behaviour
+            // Return the enemy to the game.
             spawnedObject.SetActive(true);
         }
     }
 
-    void HandleEnemiesRemoved(EnemyData data)
+    private void HandleEnemyRemoved(Enemy enemy)
     {
-        // Keep track of how many enemies have completed the path
+        // Count every enemy that leaves the game.
         enemiesRemoved++;
     }
 }

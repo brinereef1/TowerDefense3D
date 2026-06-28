@@ -3,18 +3,18 @@ using UnityEngine;
 
 public class ObjectPooler : MonoBehaviour
 {
-    // Enemy prefab that this pool manages
+    // Prefab that will be reused by this object pool.
     [SerializeField] GameObject prefab;
 
-    // Initial number of enemies to create
+    // Number of objects to create when the game starts.
     [SerializeField] int poolSize;
 
-    // Stores all created enemies
+    // Stores every object created by this pool.
     [SerializeField] List<GameObject> pool;
 
     private void Start()
     {
-        // Create the pool at game start
+        // Create the pool and pre-instantiate the initial objects.
         pool = new List<GameObject>();
 
         for (int i = 0; i < poolSize; i++)
@@ -25,13 +25,13 @@ public class ObjectPooler : MonoBehaviour
 
     private GameObject CreateNewObjects()
     {
-        // Create a new enemy
+        // Create a new object as a child of this pool for hierarchy organization.
         GameObject newPrefab = Instantiate(prefab, transform);
 
-        // Keep it disabled until needed
+        // Keep new objects inactive until they are needed.
         newPrefab.SetActive(false);
 
-        // Store it in the pool
+        // Add the object to the pool.
         pool.Add(newPrefab);
 
         return newPrefab;
@@ -39,7 +39,7 @@ public class ObjectPooler : MonoBehaviour
 
     public GameObject GetPooledObjects()
     {
-        // Look for an inactive object that can be reused
+        // Return the first inactive object available in the pool.
         foreach (GameObject obj in pool)
         {
             if (!obj.activeSelf)
@@ -48,7 +48,7 @@ public class ObjectPooler : MonoBehaviour
             }
         }
 
-        // If every object is busy, create a new one
+        // Expand the pool if every object is currently in use.
         return CreateNewObjects();
     }
 }

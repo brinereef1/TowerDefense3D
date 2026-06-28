@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0c8379e51351a84ca9fb53fdc28a90d, type: 3}
   m_Name: Enemy_Cylinder
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
-  Lives: 8
+  Lives: 3
   Damage: 3
-  Speed: 5
+  Speed: 3
   Offset: {x: 0, y: 1.1, z: 0}
